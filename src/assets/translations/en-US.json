@@ -90,7 +90,7 @@
   "requirements_cpu_avxExplanation_1": "This cannot be fixed without upgrading to a newer CPU",
   "requirements_cpu_avxExplanation_2": "AVX support has been fairly standard since 2011",
   "requirements_cpu_avxExplanation_3": "Click here for more information",
-  "requirements_armNotSupportedOutsideMacOS": "OpenGOAL only supports ARM on macOS via Rosetta",
+  "requirements_armNotSupportedOutsideMacOS": "OpenGOAL only supports ARM on macOS and Linux",
   "requirements_cpu_doesNotSupportAVX": "Your CPU does not support AVX",
   "requirements_cpu_supportsAVX": "Your CPU supports AVX",
   "requirements_macos_atleastVersion15": "MacOS version 15 or above installed",

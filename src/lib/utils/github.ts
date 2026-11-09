@@ -32,12 +32,18 @@ function getDownloadLinkForCurrentPlatform(githubRelease: GitHubRelease) {
         asset.name.toLowerCase().includes(userArch),
     );
   } else {
-    matchingAsset = githubRelease.assets.find(
-      (asset) =>
-        asset.name.toLowerCase().includes(plat) &&
-        !asset.name.toLowerCase().includes(".bin") &&
-        !asset.name.toLowerCase().includes("lsp"),
-    );
+    // ARM builds are named like `opengoal-linux-arm-<tag>`. Only offer them on aarch64, and never
+    // offer the x86-64 build there: it would not run without an x86-64 emulator.
+    const wantArm = arch() === "aarch64";
+    matchingAsset = githubRelease.assets.find((asset) => {
+      const name = asset.name.toLowerCase();
+      return (
+        name.includes(plat) &&
+        !name.includes(".bin") &&
+        !name.includes("lsp") &&
+        name.includes(`${plat}-arm`) === wantArm
+      );
+    });
   }
   if (matchingAsset) {
     return matchingAsset.browser_download_url;

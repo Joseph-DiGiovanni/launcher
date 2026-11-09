@@ -76,13 +76,11 @@
           {/if}
         </Alert>
       {/if}
-    {:else if $currentRequirements?.isTryingToUseARMOutsideOfMacOS}
+    {:else if $currentRequirements?.isUnsupportedARMPlatform}
       <Alert
         class="w-full text-start"
         rounded={false}
-        color={alertColor(
-          !$currentRequirements?.isTryingToUseARMOutsideOfMacOS,
-        )}
+        color={alertColor(!$currentRequirements?.isUnsupportedARMPlatform)}
       >
         <span class="font-bold"
           >{$_("requirements_armNotSupportedOutsideMacOS")}</span

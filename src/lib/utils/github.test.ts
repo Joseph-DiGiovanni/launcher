@@ -222,6 +222,60 @@ describe("listOfficialReleases", () => {
       releases[0].downloadUrl.endsWith("opengoal-linux-v0.0.1.tar.gz"),
     ).toBeTruthy();
   });
+
+  it("should not pick the linux ARM release on x86_64", async () => {
+    vi.mocked(platform).mockReturnValue("linux");
+    vi.mocked(arch).mockReturnValue("x86_64");
+    (fetch as Mock).mockResolvedValue(
+      createFetchResponse([
+        createFakeGithubRelease([
+          "opengoal-linux-arm-v0.0.1.tar.gz",
+          "opengoal-windows-v0.0.1.zip",
+          "opengoal-linux-v0.0.1.tar.gz",
+        ]),
+      ]),
+    );
+    const releases = await listOfficialReleases();
+    expect(releases.length).toBe(1);
+    expect(
+      releases[0].downloadUrl.endsWith("opengoal-linux-v0.0.1.tar.gz"),
+    ).toBeTruthy();
+  });
+
+  it("should retrieve linux ARM releases on aarch64", async () => {
+    vi.mocked(platform).mockReturnValue("linux");
+    vi.mocked(arch).mockReturnValue("aarch64");
+    (fetch as Mock).mockResolvedValue(
+      createFetchResponse([
+        createFakeGithubRelease([
+          "opengoal-linux-v0.0.1.tar.gz",
+          "opengoal-lsp-linux-arm-v0.0.1.bin",
+          "opengoal-linux-arm-v0.0.1.tar.gz",
+        ]),
+      ]),
+    );
+    const releases = await listOfficialReleases();
+    expect(releases.length).toBe(1);
+    expect(
+      releases[0].downloadUrl.endsWith("opengoal-linux-arm-v0.0.1.tar.gz"),
+    ).toBeTruthy();
+  });
+
+  it("should not offer the x86_64 linux release on aarch64", async () => {
+    vi.mocked(platform).mockReturnValue("linux");
+    vi.mocked(arch).mockReturnValue("aarch64");
+    (fetch as Mock).mockResolvedValue(
+      createFetchResponse([
+        createFakeGithubRelease([
+          "opengoal-macos-arm-v0.0.1.tar.gz",
+          "opengoal-linux-v0.0.1.tar.gz",
+        ]),
+      ]),
+    );
+    const releases = await listOfficialReleases();
+    expect(releases.length).toBe(1);
+    expect(releases[0].downloadUrl).toBeUndefined();
+  });
 });
 
 describe("getLatestOfficialRelease", () => {

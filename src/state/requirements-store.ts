@@ -13,7 +13,7 @@ export interface RequirementResult {
   osType: string;
 
   isAVXRelevant: boolean;
-  isTryingToUseARMOutsideOfMacOS: boolean;
+  isUnsupportedARMPlatform: boolean;
   isVCCRelevant: boolean;
 
   isAVXMet?: boolean;
@@ -30,9 +30,11 @@ async function evaluateRequirements(
   const architecture = arch();
   const osType = type();
 
-  const isAVXRelevant = osType !== "macos";
-  const isTryingToUseARMOutsideOfMacOS =
-    architecture === "aarch64" && osType !== "macos";
+  // AVX is only needed by the x86-64 tooling; ARM64 builds generate ARM64 code instead.
+  const isAVXRelevant = osType !== "macos" && architecture !== "aarch64";
+  // ARM64 tooling is built for macOS and Linux only
+  const isUnsupportedARMPlatform =
+    architecture === "aarch64" && osType !== "macos" && osType !== "linux";
   const isVCCRelevant = osType === "windows";
 
   const isOpenGLMet = await isOpenGLRequirementMet(forceOpenGL);
@@ -45,7 +47,7 @@ async function evaluateRequirements(
 
   let requirementsMet: boolean;
 
-  if (architecture === "aarch64" && osType !== "macos") {
+  if (isUnsupportedARMPlatform) {
     requirementsMet = false;
   } else if (osType === "macos") {
     requirementsMet = Boolean(isOpenGLMet && isDiskSpaceMet);
@@ -57,14 +59,16 @@ async function evaluateRequirements(
       systemInfoState.isMinVCCRuntimeInstalled,
     );
   } else {
-    requirementsMet = Boolean(isAVXMet && isOpenGLMet && isDiskSpaceMet);
+    requirementsMet = Boolean(
+      (!isAVXRelevant || isAVXMet) && isOpenGLMet && isDiskSpaceMet,
+    );
   }
 
   return {
     architecture,
     osType,
     isAVXRelevant,
-    isTryingToUseARMOutsideOfMacOS,
+    isUnsupportedARMPlatform,
     isVCCRelevant,
     isAVXMet,
     isOpenGLMet,
